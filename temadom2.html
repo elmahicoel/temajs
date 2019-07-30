@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    .button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 4px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+       
+        margin: 4px 2px;
+        border-radius: 2px
+    }
+    .sort {
+        background-color :red;
+        border: none;
+        color: black;
+        padding: 4px;
+        text-align: center;
+        border-radius: 3px;
+        display: inline-block;
+        margin : 4px 2px;
+    }
+    .marked {
+        background-color: blue;
+        border: none;
+        color: black;
+        padding: 4px;
+        text-align: center;
+        border-radius: 3px;
+       
+        margin : 4px 2px;
+        
+        
+
+    }
+    .strike {
+    text-decoration: line-through;
+    }
+    ul {
+        list-style-type: none;
+        padding : 0; 
+        margin: 0;
+
+    }
+    
+</style>
+</head>
+<body>
+    
+     <h1>SHOPPING LIST</h1>
+    <input type="text" name="produs" id="txtVal"><button  class="button"id="myBtn" onclick="addLi()">Add Item</button> <br>
+    <button class="sort" onclick="ascSort()">Sort asc</button> <button class= "sort" onclick="desSort()">Sort des</button> 
+    <table>
+            <tr>
+              <th>Item description</th>
+              <th>Action</th>
+            </tr>
+            <tr>
+              <td><ul id="LIST"></ul></td>
+              <td><ul id="marked"></ul></td>
+            </tr>
+          </table>
+
+</tr>
+</table>
+<script>
+
+	var input = document.getElementById("txtVal");
+	input.addEventListener("keypress", function(evt) {
+            if (evt.keyCode === 13) {
+								document.getElementById("myBtn").click();
+            }
+        });
+    
+    function addLi(){
+				var inputValue = document.getElementById('txtVal').value;
+				var listNode = document.getElementById('LIST');
+				var listTwoNode = document.getElementById('marked')
+				var liNode = document.createElement("LI");
+				var liTwoNode = document.createElement("LI")
+				var txtNode = document.createTextNode (inputValue);
+				var butNode=document.createElement("button");
+				
+        butNode.innerHTML ="Mark as buyed"
+        butNode.classList.add("marked");
+        
+        liNode.appendChild(txtNode);
+        listNode.appendChild(liNode);
+        liTwoNode.appendChild(butNode);
+        listTwoNode.appendChild(liTwoNode);
+        document.getElementById("txtVal").value = ""
+        butNode.addEventListener("click", function strikeDecoration(){
+            liNode.classList.add("strike");
+
+        })
+		}
+		
+    function ascSort(){
+        var switching = true;
+        var shouldSwitch;
+        var list = document.getElementById('LIST');
+
+        while (switching) {
+            switching = false ;
+            var nume = list.getElementsByTagName("LI");
+            for (var i = 0; i < nume.length; i++) {
+							if (nume[i].innerHTML.toLowerCase() > nume[i + 1].innerHTML.toLowerCase()) {
+								shouldSwitch = true;
+								break;
+						}
+					}
+
+            if(shouldSwitch){
+                nume[i].parentNode.insertBefore(nume[i+1],nume[i]);
+                switching = true;
+            }
+        }
+        
+
+    }
+    function desSort(){
+        var switching = true;
+        var shouldSwitch 
+        var list = document.getElementById('LIST');
+
+        while (switching) {
+            switching = false ;
+            var nume= list.getElementsByTagName("LI");
+            for ( var i = 0; i<nume.length ; i++){
+                if(nume[i].innerHTML.toLowerCase() < nume[i + 1].innerHTML.toLowerCase()){
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+
+            if(shouldSwitch){
+                nume[i].parentNode.insertBefore(nume[i+1],nume[i]);
+                switching = true;
+            }
+        }
+		}
+    
+    
+
+</script>
+</body>
+</html>
