@@ -4,231 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Document</title> 
     <style>
-       input.changecolor {
-          background-color: green;
-       }
-       .rigthCorner {
-        position: absolute;
-        top: 100%;
-        right: 0%;
+        
+        .body {
+            background-color: burlywood;
+						width: 80%;
+						margin: 0 auto;
         }
-        .cc{
-            color:red;
+        #header, #vremea, #prognoza{
+            background-color:white;
+            width: 100%;
+            min-height: 50px;
+
         }
+        
+				#vremea {
+					min-height: 35vh;
+				}
+
+        #prognoza{
+          min-height: 50vh;
+        }
+
+        ul {
+					list-style-type: none;
+					padding : 4px;
+        }
+
+				#zile, #forecast-details  {
+					display: flex;
+					justify-content: space-between;
+				}
+
+				.w16 {
+					width: 16.666%;
+				}
 
     </style>
-    <script>
-    function validate(leForm,event){
+</head>
+<body class="body">
+		<div id="header">
+			<input type="text"
+						 id="city">
+			<button onclick="ajax();">Afiseaza vremea</button>
+			<button id="days">Afiseaza prognoza</button>
+		</div>
+		<div id="vremea">
+			<h1>Vremea acum</h1>
+			<hr>
+			<div>
+			  <div id="icon"></div>
+				<ul id="description"></ul>
+				<ul id="humidity"></ul>
+				<ul id="pressure"></ul>
+				<ul id="temp"></ul>
+				<ul id="temp_min"></ul>
+				<ul id="temp_max"></ul>
+			</div>
+			<div>
+				<span id="map"></span>
+			</div>
+		</div>
+		<div id="prognoza">
+			<h1>Vremea in urmatoarele zile</h1>
+			<hr>
+			<ul id="zile">
 			
-		event.preventDefault();
-		var val1Input = document.querySelector("[name='val1']");
-		var val2Input = document.querySelector("[name='val2']");
-			if(val1Input.value === val2Input.value && val1Input.value !==''){
-				val1Input.classList.add("changecolor");
-				val2Input.classList.add("changecolor");
+			</ul>
+			<div id="forecast-details">
+				
+			</div>
+		
+		</div>
+
+   
+
+
+    <script>
+			const prognoza = document.querySelector('#days');
+
+			async function ajax(event){
+							
+					var response = await fetch("http://api.openweathermap.org/data/2.5/weather?appid=69518b1f8f16c35f8705550dc4161056&units=metric&q=" + document.getElementById("city").value);
+					var vremea = await response.json();
+					var pic = vremea.weather[0].icon;
+					
+				 
+					document.querySelector("#icon").innerHTML = `<img src = "http://openweathermap.org/img/w/${pic}.png">`
+					document.querySelector("#description").innerText ="Descriere: " + vremea.weather[0].description;   
+					document.querySelector("#humidity").innerText ="Umiditate: " + vremea.main.humidity;
+					document.querySelector("#pressure").innerText ="Presiune: " + vremea.main.pressure;
+					document.querySelector("#temp").innerText ="Temperatura curenta: " + vremea.main.temp;
+					document.querySelector("#temp_min").innerText ="Minima zilei: " + vremea.main.temp_min;
+					document.querySelector("#temp_max").innerText ="Maxima zilei: " + vremea.main.temp_max;
+	
+					
+			}
+			
+			async function ajax2(){
+					const city = document.querySelector('#city').value.toLowerCase();
+					const rowData = await fetch(`https://api.openweathermap.org/data/2.5/forecast?appid=69518b1f8f16c35f8705550dc4161056&units=metric&q=${city}`);
+					const rowJson = await rowData.json();
+
+					
+					const weatherForecast = [];
+					const distinctDays = [...new Set(rowJson.list.map(unique => new Date(unique.dt_txt).toLocaleString().split(',')[0]))];
+					distinctDays.forEach(day => {
+						weatherForecast.push({
+							Date: day.toString(),
+							relatedData: []
+						})
+					})
+          
+					const rawForecast = rowJson.list.map(item => {
+						
+						
+						return {
+							'temperature': item.main.temp,
+							'icon' : item.weather[0].icon,
+							'date': new Date(item.dt_txt).toLocaleString().split(',')[0],
+							'hour': new Date(item.dt_txt).toLocaleString().split(',')[1],
+							'icon' : item.weather[0].icon,
+							'description': item.weather[0].description
+						}
+					
+					}).map(item => {
+						return {
+							'Date': item.date,
+							'icon': item.icon,
+							'relatedData': [{
+								'temperature' : item.temperature,
+								'hour': item.hour,
+								'icon': item.icon,
+								'description': item.description
+							}]
+						}
+					}).map(weather => {
+						weatherForecast.map(item => {
+							if(weather.Date === item.Date)	{
+								item.relatedData.push(weather.relatedData[0]);
+							}
+						})
+					})
+
+				return [[...distinctDays], [...weatherForecast]];
+				
 
 			}
-
-        }
-        function validate2(theForm2,event){
 			
-            event.preventDefault();
-            var val3Input = document.querySelector("[name='val3']");
-            var val4Input = document.querySelector("[name='val4']");
-                if(val3Input.value === val4Input.value && val4Input.value !==''){
-                    val3Input.classList.add("changecolor");
-                    val4Input.classList.add("changecolor");
-    
-                }else if(val3Input.value < val4Input.value && val3Input.value !==''){
-                    val4Input.classList.add("changecolor");
-                }else{
-                    val3Input.classList.add("changecolor");
-                }
-
-                
-    
-            }
-
-            function  validate3(theForm3, event) {
-           
-           var val5Input = document.querySelector("[name='val5']");
-           var val6Input = document.querySelector("[name='val6']");
-           if(val5Input.value <= val6Input.value){
-           document.getElementById('result').value = val6Input.value 
-           
-           }else{
-           document.getElementById('result').value = val5Input.value 
-           }
-           document.theForm3.submit();
-     }
-     function  validate4(theForm4, event) {
-           
-           var val8Input = document.getElementById('1').value;
-           var val9Input = document.getElementById('2').value;
-           document.getElementById('result2').value= parseInt(val8Input) + parseInt(val9Input);
-           
-     }
-     function  validate5(theForm5, event) {
-            var count = 0;
-            var val11Input = document.getElementById('3').value;
-            count = val11Input.length;
-            document.getElementById('4').innerHTML = count;
-            
-      }
-      function  validate6(theForm6, event) {
-          var count = 0;
-          var nul =1;
-          var countvl = document.getElementById("5").value;
-          var val12Input = document.getElementById("5");  
-          val12Input.addEventListener('keypress', function (evt) {
-               if (val12Input.value.length >= 10 && (evt.keyCode != 8 || evt.keyCode != 37 || evt.keyCode != 46)) {
-               evt.preventDefault();
-               count.classList.add("cc");
+		
+			
+			function renderListHead(listData) {
+				const zile = document.querySelector('#zile');
+				listData.forEach(element => {
+					zile.innerHTML += `<section class="w16"><h2>${element}</h2></section>`;
+				});
+			}
         
-            
-               
-             
-         
-     }
+			  function renderListBody(listData) {
+				const forecastDetails = document.querySelector('#forecast-details');
+				
+				let html = '';
+					
+					listData.forEach((item, index) => {
+						html += `<section class="w16">`;					
+						item.relatedData.forEach((element, idx) => {
+							html += `<div><img src = "http://openweathermap.org/img/w/${element.icon}.png"></div>
+							        <h3>Temp:${element.temperature}</h3>									        
+											<p>Hour:${element.hour}</p>
+											<p>Notes:${element.description}</p>
+											`;
+						});
+							html += `</section>`;
+					})
 
-    })
-         
-         
-         count = countvl.length + nul ;
-         document.getElementById('6').innerHTML = count;
-            
-    }
+				forecastDetails.innerHTML = html;
+			}
+			
 
-    function  validate7(theForm7, event) {
-        
-        var val13Input = document.getElementById("7");  
-        val13Input.addEventListener('keypress', function (evt) {
-             if (evt.keyCode < 48 || evt.keyCode > 57 ) {
-             evt.preventDefault();
-           
-       
-   }
-
-  })
+			prognoza.addEventListener('click', ()=> {
+				ajax2().then(reply => {
+					renderListHead(reply[0]);
+					renderListBody(reply[1]);
+				});
+			});
       
-  }
-   
-    </script>
-</head>
-<body>
-    <form> 
-        <input type="text">
-        <input type="text">
-        <input type="text">
-        <select name="ceva">
-
-                <option value="">[ Alege ]</option>
-
-                <option value="Alege1">Rosu</option>
-
-                <option value="Alege2">Albastru</option>
-
-                <option value="Alege3">Verde</option>
-
-            </select>
-        <select name="ceva2">
-
-                <option value="">[ Alege ]</option>
-
-                <option value="Alege1">Rosu</option>
-
-                <option value="Alege2">Albastru</option>
-
-                <option value="Alege3">Verde</option>
-
-            </select>
-            <input type="checkbox" name="toc"/>
-            <input type="checkbox" name="toc"/>
-            <input type="checkbox" name="toc"/>
-            <input type="radio" />
-            <input type="radio" />
-            <input type="radio" />
-            <input type="submit" />
-
-            </form>
-
-        <hr> 
-        1. Pastrati doar 2 inputuri si colorati ambele inputuri verzi daca valoarea din casuta 1 si din casuta 2 sunt egale
-        <form onsubmit="validate(this,event);">
-
-                <label>Valoare1: <input type="text" name="val1" /></label><br>
-                <label>Valoare2: <input type="text" name="val2"  /></label><br>
-                
-                <input type="submit" value="send"/>
-          
-            </form>
-        
-        2. Pastrati doar 2 inputuri si colorati inputul care are valoarea mai mare. Daca sunt egale, colorati-le pe ambele
-        <form onsubmit="validate2(this,event);">
-
-                <label>Valoare1: <input type="text" name="val3" /></label><br>
-                <label>Valoare2: <input type="text" name="val4"  /></label><br>
-                
-                <input type="submit" value="send"/>
-          
-            </form>
-        3. Pastrati doar 3 inputuri si afisati in al 3-lea input valoarea inputului mai mare dintre primul si al doilea
-        <form id="theForm3" onsubmit="validate3(this,event);">
-
-                <label>Valoare1: <input type="text" name="val5" /></label><br>
-                <label>Valoare2: <input type="text" name="val6"  /></label><br>
-                
-                
-                <label>Rezultat:<input type="text" name="val7"  id="result" /> </label> <br>
-                 <button type="button" onclick="validate3();">Send</button>
-          
-            </form>
-        4. Pastrati doar 3 inputuri si afisati in al 3-lea input suma primului + celui de-al 2-lea  input 
-        <form id="theForm4" onsubmit="validate4(this,event);">
-
-                <label>Valoare1: <input type="text" name="val8" id="1" /></label><br>
-                <label>Valoare2: <input type="text" name="val9"  id="2"/></label><br>
-                
-                
-                <label>Rezultat:<input type="text" name="val10"  id="result2" /> </label> <br>
-                 <button type="button" onclick="validate4();">Send</button>
-          
-            </form>
-        
-        5. Pastrati doar 1 input si afisati intr-un span/div in coltul dreapta jos, lungimea sirului de caractere tastat.
-        <form id="theForm5" onsubmit="validate5(this,event);">
-
-            <label>Valoare1: <input type="text" name="val11" id="3" /></label><br>
-            
-            
-            
-            <label>Rezultat: </label> <br>
-             <button type="button" onclick="validate5();">Send</button><div id = "4" class="rigthCorner" ></div>
-        </form>
-
-        6. Plecand de la ex 5, limitati numarul de caractere la 10. In momentul in care am ajuns la 10, inrositi counterul si folosind event.preventDefault() pe evenimentul onkeypress opriti utilizatorul sa mai introduca caractere in plus
-        <form id="theForm6" onsubmit="validate6(this,event);">
-
-                <label>Valoare1: <input type="text" name="val12" id="5" onkeypress="validate6()" /></label><br>
-                
-                
-                
-                <label>Rezultat: </label> <br>
-                 <button type="button" onclick="validate5();">Send</button><div id = "6" class="rigthCorner"  class="cc" ></div>
-          
-            </form>
-        
-        7. Pastrati doar 1 input si folosind event.preventDefault pe evenimentul onkeypress, opriti utilizatorul sa mai introduca orice altceva decat numere. (tip: puteti sa gasiti caracterul tastat in event.key)
-
-        <form id="theForm7" onsubmit="validate7(this,event);">
-
-                <label>Valoare1: <input type="text" name="val12" id="7" onkeypress="validate7()" /></label><br>
-        
-          
-            </form>
-        
-        
+			</script>
 </body>
 </html>
